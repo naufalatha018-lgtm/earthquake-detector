@@ -86,9 +86,13 @@ Built with Flutter by:
 
 - M Faqih Tsaqifa A
 - Naufal A. Athaillah
-- Revan Alfarizy
-- K. N. Azwa
+
+
 Focus: IoT Simulation & Mobile App Development
+
+## 🤝 Collaboration
+
+Special thanks to all contributors and testers.
 
 ---
 
