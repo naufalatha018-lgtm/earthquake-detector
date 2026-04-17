@@ -1,5 +1,7 @@
 // UPDATED UI - PREMIUM STYLE
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../state/providers/app_settings_provider.dart';
 
 class SystemPage extends StatefulWidget {
   const SystemPage({super.key});
@@ -9,8 +11,6 @@ class SystemPage extends StatefulWidget {
 }
 
 class _SystemPageState extends State<SystemPage> {
-  String themeMode = "System";
-  String language = "English";
 
   static const _bg = Color(0xFFF8FAFC);
   static const _dark = Color(0xFF1C1C2E);
@@ -72,7 +72,33 @@ class _SystemPageState extends State<SystemPage> {
               isDense: true,
               style: const TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w500),
               borderRadius: BorderRadius.circular(12),
-              items: items.map((e) => DropdownMenuItem(value: e, child: Text(e.toString()))).toList(),
+              items: items.map((e) {
+                String text;
+
+                if (e is ThemeMode) {
+                  switch (e) {
+                    case ThemeMode.light:
+                      text = "Light";
+                      break;
+                    case ThemeMode.dark:
+                      text = "Dark";
+                      break;
+                    case ThemeMode.system:
+                      text = "System";
+                      break;
+                }
+              } else if (e is Locale) {
+                text = e.languageCode == 'id' ? "Indonesia" : "English";
+              } else {
+                text = e.toString();
+              }
+
+              return DropdownMenuItem(
+                value: e,
+                child: Text(text),
+              );
+            }).toList(),
+
               onChanged: onChanged,
             ),
           ),
@@ -83,6 +109,7 @@ class _SystemPageState extends State<SystemPage> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<AppSettingsProvider>(context);
     return Scaffold(
       backgroundColor: _bg,
       appBar: AppBar(
@@ -129,28 +156,42 @@ class _SystemPageState extends State<SystemPage> {
 
             // ── Appearance ────────────────────────────────────
             _sectionLabel('Tampilan'),
-            _dropdownRow<String>(
+            _dropdownRow<ThemeMode>(
               icon: Icons.palette_outlined,
               label: 'Theme',
               desc: 'Pilih tampilan aplikasi',
-              value: themeMode,
-              items: const ['Light', 'Dark', 'System'],
-              onChanged: (v) => setState(() => themeMode = v!),
+              value: settings.themeMode,
+              items: const [
+                ThemeMode.light,
+                ThemeMode.dark,
+                ThemeMode.system,
+              ],
+              onChanged: (v) {
+                if (v != null) {
+                  settings.setThemeMode(v);
+                }
+              },
             ),
 
             const SizedBox(height: 24),
 
             // ── Language ──────────────────────────────────────
             _sectionLabel('Bahasa'),
-            _dropdownRow<String>(
+            _dropdownRow<Locale>(
               icon: Icons.language_rounded,
               label: 'Language',
               desc: 'Pilih bahasa aplikasi',
-              value: language,
-              items: const ['English', 'Indonesia'],
-              onChanged: (v) => setState(() => language = v!),
+              value: settings.locale,
+              items: const [
+                Locale('en'),
+                Locale('id'),
+              ],
+              onChanged: (v) {
+                if (v != null) {
+                  settings.setLocale(v);
+                }
+              },
             ),
-
             const SizedBox(height: 24),
 
             // ── App Info ──────────────────────────────────────
@@ -183,6 +224,7 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<AppSettingsProvider>(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       child: Row(

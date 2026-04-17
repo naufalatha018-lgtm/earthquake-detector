@@ -57,4 +57,6 @@ class AppStyle {
       borderRadius: BorderRadius.circular(10),
     ),
   );
+
+  static Decoration? cardDecoration(BuildContext context) {}
 }

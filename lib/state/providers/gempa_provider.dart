@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 class GempaProvider extends ChangeNotifier {
-  bool isDemo = true;
   Map<String, String> gempa = {
     "tanggal": "-",
     "jam": "-",
@@ -15,68 +13,27 @@ class GempaProvider extends ChangeNotifier {
   List<double> magnitudes = [1, 2, 3, 2, 4, 3, 5];
 
   Timer? _timer;
-  final AudioPlayer _player = AudioPlayer();
-  bool _isPlaying = false;
 
-  // 🚀 START SIMULATION
+  Object? get logs => null;
+
   void startSimulation() {
-  stopSimulation();
-
-  if (isDemo) {
     _timer = Timer.periodic(const Duration(seconds: 3), (_) {
       _updateGempa();
     });
-    } else {
-    // nanti untuk API (sementara kosong)
-    }
   }
 
-  // 🛑 STOP SIMULATION (biar aman)
-  void stopSimulation() {
-    _timer?.cancel();
-    _timer = null;
-  }
-
-  Future<void> _playAlarm() async {
-  if (_isPlaying) return;
-
-  _isPlaying = true;
-  await _player.play(AssetSource('sounds/alarm.mp3'));
-
-  Future.delayed(const Duration(seconds: 3), () {
-    _isPlaying = false;
-  });
-}
-
-  // 🔄 UPDATE DATA (DEMO MODE)
   void _updateGempa() {
     final now = DateTime.now();
-
-    final dummyWilayah = [
-      "Kab. Bandung, Jawa Barat",
-      "Jakarta Selatan",
-      "Yogyakarta",
-      "Surabaya",
-      "Padang, Sumatera Barat"
-    ];
-
-    final wilayah = dummyWilayah[now.second % dummyWilayah.length];
-
-    final magnitude = (3 + (now.second % 5)).toDouble();
-
-    if (magnitude >= 5) {
-      _playAlarm();
-    }
 
     gempa = {
       "tanggal": "${now.day}/${now.month}/${now.year}",
       "jam": "${now.hour}:${now.minute}:${now.second}",
-      "magnitude": magnitude.toStringAsFixed(1),
+      "magnitude": (2 + (now.second % 5)).toString(),
       "kedalaman": "${10 + now.second} km",
-      "wilayah": wilayah,
+      "wilayah": "Dummy Area",
     };
 
-    magnitudes.add(magnitude);
+    magnitudes.add(double.parse(gempa["magnitude"]!));
     if (magnitudes.length > 10) {
       magnitudes.removeAt(0);
     }
@@ -84,9 +41,5 @@ class GempaProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    stopSimulation();
-    super.dispose();
-  }
+  void stopSimulation() {}
 }
