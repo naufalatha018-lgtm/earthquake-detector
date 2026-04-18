@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:gempa_bumi/state/providers/gempa_provider.dart';
 import 'package:gempa_bumi/core/theme/app_style.dart';
 
@@ -13,15 +14,6 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-
-  @override
-  void initState() {
-    super.initState();
-
-    Future.microtask(() {
-      context.read<GempaProvider>().startSimulation();
-    });
-  }
 
   Widget buildChart(List<double> data) {
     return SizedBox(
@@ -58,34 +50,43 @@ class _DashboardPageState extends State<DashboardPage> {
     final provider = context.watch<GempaProvider>();
     final gempa = provider.gempa;
 
+    // 🔥 DETEKSI BAHAYA - HANYA GUNAKAN status_trigger (SINGLE SOURCE OF TRUTH)
+    final isBahaya = provider.statusTrigger;
+
     return Scaffold(
-      backgroundColor: AppStyle.bg(context),
+      // 🔴 BACKGROUND DINAMIS
+      backgroundColor: isBahaya ? Colors.red.shade100 : AppStyle.bg(context),
+
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Earthquake Monitor',
+        title: Text(
+          isBahaya ? '⚠️ BAHAYA GEMPA' : 'Earthquake Monitor',
           style: TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 20,
-            color: Colors.black87,
+            color: isBahaya ? Colors.red : Colors.black87,
           ),
         ),
         centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Icon(Icons.notifications_none_rounded, color: Colors.black54),
-          ),
-        ],
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // ── Header subtitle ──────────────────────────────
+            Center(
+              child: Image.asset(
+                'assets/images/logo.png',
+                width: 100,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+
             const Text(
               'Live Seismic Activity',
               style: TextStyle(
@@ -95,34 +96,28 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             const SizedBox(height: 4),
+
             Text(
               gempa['wilayah'] == '-' ? 'Menunggu data...' : gempa['wilayah']!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: isBahaya ? Colors.red : Colors.black87,
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // ── Chart Card ───────────────────────────────────
+            // 🔥 CARD JADI MERAH SAAT BAHAYA
             Container(
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1C1C2E), Color(0xFF2E2E4E)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                gradient: LinearGradient(
+                  colors: isBahaya
+                      ? [Colors.red.shade700, Colors.red.shade400]
+                      : [const Color(0xFF1C1C2E), const Color(0xFF2E2E4E)],
                 ),
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF1C1C2E).withOpacity(0.3),
-                    blurRadius: 16,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +127,6 @@ class _DashboardPageState extends State<DashboardPage> {
                     style: TextStyle(
                       color: Colors.white54,
                       fontSize: 11,
-                      letterSpacing: 1.2,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -152,7 +146,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
             const SizedBox(height: 20),
 
-            // ── Info Cards ───────────────────────────────────
             Row(
               children: [
                 Expanded(
@@ -196,9 +189,34 @@ class _DashboardPageState extends State<DashboardPage> {
               ],
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
 
-            // ── Action Buttons ───────────────────────────────
+            // 🚨 TOMBOL HENTIKAN SIRENE (SUPABASE VERSION)
+            if (isBahaya)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    // 🟢 PANGGIL METHOD DARI PROVIDER (SUPABASE)
+                    await provider.stopSiren();
+
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Sirene dimatikan")),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.volume_off),
+                  label: const Text("Hentikan Sirene"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                ),
+              ),
+
+            const SizedBox(height: 12),
+
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -207,14 +225,6 @@ class _DashboardPageState extends State<DashboardPage> {
                 },
                 icon: const Icon(Icons.list_alt_rounded, size: 18),
                 label: const Text('Logs'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.black87,
-                  side: const BorderSide(color: Colors.black26),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
               ),
             ),
 
@@ -226,7 +236,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
-// ── Helper Widget ────────────────────────────────────────────────────────────
+// INFO CARD (TIDAK DIUBAH)
 class _InfoCard extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -247,13 +257,6 @@ class _InfoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: highlight ? const Color(0xFF1C1C2E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,7 +272,6 @@ class _InfoCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               color: highlight ? Colors.white54 : Colors.black45,
-              letterSpacing: 0.5,
             ),
           ),
           const SizedBox(height: 2),

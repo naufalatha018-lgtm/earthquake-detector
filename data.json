@@ -1,0 +1,12 @@
+{
+  "demo_environment": {
+    "earthquake_data": {
+      "magnitude": 4.5,
+      "distance_km": 10,
+      "status_trigger": false
+    }
+  },
+  "demo_device_control": {
+    "siren_active": true
+  }
+}

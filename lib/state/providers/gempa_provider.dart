@@ -1,9 +1,19 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class GempaProvider extends ChangeNotifier {
-  bool isDemo = true;
+  // 🟢 SUPABASE CLIENT
+  final SupabaseClient _supabase = Supabase.instance.client;
+
+  // 🎧 REALTIME SUBSCRIPTION
+  RealtimeChannel? _subscription;
+
+  // 🔥 STATE
+  double magnitude = 0;
+  double distanceKm = 0;
+  bool statusTrigger = false;
+
   Map<String, String> gempa = {
     "tanggal": "-",
     "jam": "-",
@@ -12,81 +22,142 @@ class GempaProvider extends ChangeNotifier {
     "wilayah": "-",
   };
 
-  List<double> magnitudes = [1, 2, 3, 2, 4, 3, 5];
+  List<double> magnitudes = [];
+  List<Map<String, String>> logs = [];
 
-  Timer? _timer;
   final AudioPlayer _player = AudioPlayer();
   bool _isPlaying = false;
 
-  // 🚀 START SIMULATION
-  void startSimulation() {
-  stopSimulation();
+  // 🚀 START LISTENING (SUPABASE REALTIME)
+  void startListening() {
+    print("🟢 Starting Supabase Realtime...");
 
-  if (isDemo) {
-    _timer = Timer.periodic(const Duration(seconds: 3), (_) {
-      _updateGempa();
-    });
-    } else {
-    // nanti untuk API (sementara kosong)
+    _subscription = _supabase
+        .channel('public:earthquake_data')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert, // ✅ FIX UTAMA DI SINI
+          schema: 'public',
+          table: 'earthquake_data',
+          callback: (payload) {
+            print("🔥🔥🔥 DATA MASUK: ${payload.newRecord}");
+
+            final data = payload.newRecord;
+
+            if (data != null) {
+              _handleDataUpdate(data);
+            }
+          },
+        )
+        .subscribe();
+
+    print("✅ SUBSCRIBED TO REALTIME");
+
+    // 📥 LOAD DATA AWAL
+    _loadInitialData();
+  }
+
+  // 📥 LOAD DATA AWAL DARI SUPABASE
+  Future<void> _loadInitialData() async {
+    try {
+      final response = await _supabase
+          .from('earthquake_data')
+          .select()
+          .order('id', ascending: false)
+          .limit(1)
+          .single();
+
+      print("📊 Initial data loaded: $response");
+      _handleDataUpdate(response);
+    } catch (e) {
+      print("❌ Error loading initial data: $e");
     }
   }
 
-  // 🛑 STOP SIMULATION (biar aman)
-  void stopSimulation() {
-    _timer?.cancel();
-    _timer = null;
-  }
+  // 🔄 HANDLE DATA UPDATE
+  void _handleDataUpdate(Map<String, dynamic> data) {
+    // ✅ PARSE DATA
+    magnitude = (data['magnitude'] as num?)?.toDouble() ?? 0.0;
+    distanceKm = (data['distance_km'] as num?)?.toDouble() ?? 0.0;
+    statusTrigger = data['status_trigger'] as bool? ?? false;
 
-  Future<void> _playAlarm() async {
-  if (_isPlaying) return;
-
-  _isPlaying = true;
-  await _player.play(AssetSource('sounds/alarm.mp3'));
-
-  Future.delayed(const Duration(seconds: 3), () {
-    _isPlaying = false;
-  });
-}
-
-  // 🔄 UPDATE DATA (DEMO MODE)
-  void _updateGempa() {
+    // 🕒 WAKTU
     final now = DateTime.now();
+    final tanggal =
+        "${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}";
+    final jam =
+        "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
 
-    final dummyWilayah = [
-      "Kab. Bandung, Jawa Barat",
-      "Jakarta Selatan",
-      "Yogyakarta",
-      "Surabaya",
-      "Padang, Sumatera Barat"
-    ];
-
-    final wilayah = dummyWilayah[now.second % dummyWilayah.length];
-
-    final magnitude = (3 + (now.second % 5)).toDouble();
-
-    if (magnitude >= 5) {
-      _playAlarm();
-    }
-
+    // 🔄 UPDATE UI DATA
     gempa = {
-      "tanggal": "${now.day}/${now.month}/${now.year}",
-      "jam": "${now.hour}:${now.minute}:${now.second}",
+      "tanggal": tanggal,
+      "jam": jam,
       "magnitude": magnitude.toStringAsFixed(1),
-      "kedalaman": "${10 + now.second} km",
-      "wilayah": wilayah,
+      "kedalaman": "$distanceKm km",
+      "wilayah": statusTrigger ? "⚠️ BAHAYA GEMPA" : "AMAN",
     };
 
+    // 📊 UPDATE CHART
     magnitudes.add(magnitude);
     if (magnitudes.length > 10) {
       magnitudes.removeAt(0);
     }
 
+    // 📜 UPDATE LOGS
+    logs.insert(0, {
+      "tanggal": tanggal,
+      "jam": jam,
+      "magnitude": magnitude.toStringAsFixed(1),
+      "kedalaman": "$distanceKm km",
+      "wilayah": statusTrigger ? "BAHAYA GEMPA" : "AMAN",
+    });
+
+    if (logs.length > 20) {
+      logs.removeLast();
+    }
+
+    // 🚨 ALARM
+    if (statusTrigger) {
+      _playAlarm();
+    }
+
     notifyListeners();
+  }
+
+  // 🔊 PLAY ALARM
+  Future<void> _playAlarm() async {
+    if (_isPlaying) return;
+
+    _isPlaying = true;
+
+    try {
+      await _player.play(AssetSource('sounds/alarm.mp3'));
+    } catch (e) {
+      print("❌ Error play audio: $e");
+    }
+
+    Future.delayed(const Duration(seconds: 3), () {
+      _isPlaying = false;
+    });
+  }
+
+  // 🔕 STOP SIREN
+  Future<void> stopSiren() async {
+    try {
+      await _supabase
+          .from('device_control')
+          .update({'siren_active': false})
+          .eq('id', 1);
+
+      print("✅ Siren stopped");
+    } catch (e) {
+      print("❌ Error stopping siren: $e");
+    }
   }
 
   @override
   void dispose() {
-    stopSimulation();
+    _subscription?.unsubscribe();
+    _player.dispose();
     super.dispose();
   }
 }

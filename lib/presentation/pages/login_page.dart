@@ -13,7 +13,7 @@ class LoginPage extends StatelessWidget {
         child: Container(
           width: 320,
           padding: const EdgeInsets.all(24),
-          decoration: AppStyle.card(),
+          decoration: AppStyle.cardDecoration(context),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
