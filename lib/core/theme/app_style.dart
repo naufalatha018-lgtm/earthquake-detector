@@ -1,60 +1,58 @@
 import 'package:flutter/material.dart';
+import 'app_colors.dart';
 
 class AppStyle {
-
-  // ✅ BACKGROUND COLOR (dipakai settings)
-  static Color bg(BuildContext context) {
-    return const Color(0xFFF5F7FA);
-  }
-
-  // ✅ BACKGROUND DECORATION (dipakai login & layout)
-  static BoxDecoration background() {
-    return const BoxDecoration(
-      color: Color(0xFFF5F7FA),
-    );
-  }
-
-  // ✅ CARD
-  static BoxDecoration card() {
+  // Card decoration
+  static BoxDecoration card({Color? color, double radius = 16}) {
     return BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.04),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
-        ),
-      ],
+      color: color ?? AppColors.surface,
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: AppColors.border, width: 0.5),
     );
   }
 
-  // ✅ TEXT STYLE
-  static const TextStyle title = TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.w600,
-    color: Colors.black,
+  static BoxDecoration glassCard({double radius = 16}) {
+    return BoxDecoration(
+      gradient: AppColors.cardGradient,
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: AppColors.border.withOpacity(0.8), width: 0.5),
+    );
+  }
+
+  // Text styles
+  static const TextStyle heading1 = TextStyle(
+    fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.textPrimary, height: 1.2,
+  );
+  static const TextStyle heading2 = TextStyle(
+    fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary, height: 1.3,
+  );
+  static const TextStyle heading3 = TextStyle(
+    fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary,
+  );
+  static const TextStyle body = TextStyle(
+    fontSize: 14, color: AppColors.textSecondary, height: 1.5,
+  );
+  static const TextStyle caption = TextStyle(
+    fontSize: 12, color: AppColors.textMuted, letterSpacing: 0.5,
+  );
+  static const TextStyle label = TextStyle(
+    fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textMuted, letterSpacing: 1.2,
   );
 
-  static const TextStyle subtle = TextStyle(
-    fontSize: 13,
-    color: Colors.grey,
-  );
-
-  static const TextStyle value = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: Colors.black,
-  );
-
-  // ✅ BUTTON (dipakai login)
+  // Button styles
   static ButtonStyle primaryButton = ElevatedButton.styleFrom(
-    backgroundColor: Colors.black,
+    backgroundColor: AppColors.safe,
     foregroundColor: Colors.white,
     elevation: 0,
-    padding: const EdgeInsets.symmetric(vertical: 14),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-    ),
+    padding: const EdgeInsets.symmetric(vertical: 16),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+  );
+
+  static ButtonStyle dangerButton = ElevatedButton.styleFrom(
+    backgroundColor: AppColors.danger,
+    foregroundColor: Colors.white,
+    elevation: 0,
+    padding: const EdgeInsets.symmetric(vertical: 16),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
   );
 }
