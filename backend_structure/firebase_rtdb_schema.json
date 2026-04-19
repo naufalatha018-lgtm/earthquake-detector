@@ -1,0 +1,171 @@
+{
+  "_comment": "Bhukampa Tech — Firebase RTDB Full Schema Sample",
+  "_mode": "DEMO MODE ACTIVE — paths demo_environment & demo_device_control are live",
+
+  "users": {
+    "uid_operator_001": {
+      "name": "Demo Operator",
+      "email": "operator@bhukampa.tech",
+      "role": "admin",
+      "created_at": "2025-01-01T00:00:00Z",
+      "device_ids": ["BHK-001", "BHK-002"]
+    },
+    "uid_viewer_002": {
+      "name": "Viewer Lapangan",
+      "email": "viewer@bhukampa.tech",
+      "role": "viewer",
+      "created_at": "2025-03-10T08:00:00Z",
+      "device_ids": ["BHK-002"]
+    }
+  },
+
+  "devices": {
+    "BHK-001": {
+      "mac_address": "A4:CF:12:7E:3B:01",
+      "owner_id": "uid_operator_001",
+      "device_name": "Sensor Utama Bandung",
+      "location": {
+        "lat": -6.9175,
+        "lng": 107.6191,
+        "label": "Stasiun Bandung Utara"
+      },
+      "status": {
+        "online": true,
+        "last_seen": "2025-01-01T12:00:00Z",
+        "rssi": -62
+      },
+      "settings": {
+        "siren_enabled": true,
+        "alert_profile": "high",
+        "custom_threshold": {
+          "magnitude": 4.0,
+          "radius_km": 50
+        }
+      },
+      "created_at": "2025-01-01T00:00:00Z"
+    },
+    "BHK-002": {
+      "mac_address": "A4:CF:12:7E:3B:02",
+      "owner_id": "uid_operator_001",
+      "device_name": "Sensor Cadangan Cianjur",
+      "location": {
+        "lat": -6.8211,
+        "lng": 107.1428,
+        "label": "Pos Cianjur Selatan"
+      },
+      "status": {
+        "online": false,
+        "last_seen": "2025-01-01T09:30:00Z",
+        "rssi": -88
+      },
+      "settings": {
+        "siren_enabled": true,
+        "alert_profile": "medium",
+        "custom_threshold": {
+          "magnitude": 3.5,
+          "radius_km": 30
+        }
+      },
+      "created_at": "2025-01-15T00:00:00Z"
+    }
+  },
+
+  "earthquake_data": {
+    "EVT-20250101-001": {
+      "magnitude": 5.8,
+      "depth": 12,
+      "epicenter_location": "12 km SE of Cianjur, West Java",
+      "timestamp": "2025-01-01T10:30:00Z",
+      "source": "BMKG"
+    },
+    "EVT-20250101-002": {
+      "magnitude": 2.1,
+      "depth": 8,
+      "epicenter_location": "25 km NE of Bandung, West Java",
+      "timestamp": "2025-01-01T14:15:00Z",
+      "source": "BMKG"
+    }
+  },
+
+  "alerts": {
+    "-NxAlert001": {
+      "user_id": "uid_operator_001",
+      "device_id": "BHK-001",
+      "magnitude": 5.8,
+      "distance_km": 12.0,
+      "risk_level": "bahaya",
+      "triggered": true,
+      "timestamp": "2025-01-01T10:30:00Z"
+    },
+    "-NxAlert002": {
+      "user_id": "uid_operator_001",
+      "device_id": "BHK-002",
+      "magnitude": 2.1,
+      "distance_km": 85.5,
+      "risk_level": "aman",
+      "triggered": false,
+      "timestamp": "2025-01-01T14:15:00Z"
+    }
+  },
+
+  "logs": {
+    "-NxLog001": {
+      "device_id": "BHK-001",
+      "type": "sensor",
+      "message": "Seismic reading spike detected: mag=5.8 dist=12km",
+      "timestamp": "2025-01-01T10:30:00Z"
+    },
+    "-NxLog002": {
+      "device_id": "BHK-001",
+      "type": "manual",
+      "message": "Siren manually deactivated by operator uid_operator_001",
+      "timestamp": "2025-01-01T10:45:00Z"
+    },
+    "-NxLog003": {
+      "device_id": "BHK-002",
+      "type": "api",
+      "message": "BMKG data sync completed — 2 events ingested",
+      "timestamp": "2025-01-01T14:00:00Z"
+    }
+  },
+
+  "emergency_contacts": {
+    "uid_operator_001": {
+      "contact_001": {
+        "name": "Ani Rahayu",
+        "phone": "+6281234567890",
+        "type": "family"
+      },
+      "contact_002": {
+        "name": "RS Hasan Sadikin",
+        "phone": "+62222034953",
+        "type": "medical"
+      },
+      "contact_003": {
+        "name": "BPBD Jawa Barat",
+        "phone": "+622220001",
+        "type": "rescue"
+      }
+    }
+  },
+
+  "settings": {
+    "uid_operator_001": {
+      "theme": "system",
+      "language": "id",
+      "notifications_enabled": true
+    }
+  },
+
+  "demo_environment": {
+    "earthquake_data": {
+      "magnitude": 1.2,
+      "distance_km": 85.0,
+      "status_trigger": false
+    }
+  },
+
+  "demo_device_control": {
+    "siren_active": false
+  }
+}

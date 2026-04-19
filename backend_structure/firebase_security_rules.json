@@ -1,0 +1,30 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "devices": {
+      ".read": "auth !== null",
+      "$device_id": {
+        ".write": "auth !== null && root.child('users').child(auth.uid).child('device_ids').child($device_id).exists()"
+      }
+    },
+    "alerts": {
+      ".read": "auth !== null",
+      "$alert_id": {
+        ".write": "auth !== null"
+      }
+    },
+    "demo_environment": {
+      ".read": true,
+      ".write": "auth !== null"
+    },
+    "demo_device_control": {
+      ".read": "auth !== null",
+      ".write": "auth !== null"
+    }
+  }
+}

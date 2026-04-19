@@ -1,53 +1,37 @@
 name: gempa_bumi
-description: Earthquake Monitoring System with Supabase
+description: "Bhukampa Tech - Earthquake Detection IoT App"
 publish_to: 'none'
-version: 2.0.0+1
+
+version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ^3.11.4
 
 dependencies:
   flutter:
     sdk: flutter
-
-  # 🟢 SUPABASE (PENGGANTI FIREBASE)
-  supabase_flutter: ^2.5.0
-  
-  # STATE MANAGEMENT
-  provider: ^6.0.5
-  
-  # ROUTING
-  go_router: ^14.0.0
-  
-  # UI
-  fl_chart: ^0.66.0
-  
-  # AUDIO
-  audioplayers: ^5.2.1
-  
-  # UTILS
-  intl: ^0.18.1
+  cupertino_icons: ^1.0.8
+  go_router: ^17.2.1
+  http: ^1.6.0
+  provider: ^6.1.5+1
+  fl_chart: ^1.2.0
+  shared_preferences: ^2.5.5
+  google_fonts: ^8.0.2
+  audioplayers: ^6.6.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
-  
   assets:
     - assets/sounds/alarm.mp3
-    - assets/images/
+    - assets/images/logo.png
 
-# ============================================
-# CATATAN MIGRASI:
-# ============================================
-# DIHAPUS:
-# ❌ firebase_core
-# ❌ firebase_database
-# ❌ firebase_options.dart (tidak perlu lagi)
-#
-# DITAMBAHKAN:
-# ✅ supabase_flutter
-# ============================================
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo.png"

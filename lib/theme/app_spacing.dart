@@ -1,0 +1,26 @@
+/// 8pt grid spacing system.
+/// Use these constants exclusively — never raw doubles.
+abstract class AppSpacing {
+  AppSpacing._();
+
+  static const double xs   =  4.0;
+  static const double sm   =  8.0;
+  static const double md   = 16.0;
+  static const double lg   = 24.0;
+  static const double xl   = 32.0;
+  static const double xxl  = 48.0;
+  static const double xxxl = 64.0;
+
+  // Border radii
+  static const double radiusSm  = 12.0;
+  static const double radiusMd  = 16.0;
+  static const double radiusLg  = 20.0;
+  static const double radiusXl  = 28.0;
+  static const double radiusFull = 100.0;
+
+  // Icon sizes
+  static const double iconSm  = 18.0;
+  static const double iconMd  = 24.0;
+  static const double iconLg  = 32.0;
+  static const double iconXl  = 48.0;
+}
