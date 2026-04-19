@@ -10,7 +10,6 @@ import 'theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Lock to portrait
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -22,27 +21,26 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => EarthquakeProvider()),
       ],
-      child: const BhukampaApp(),
+      child: const SeismoGuardApp(),
     ),
   );
 }
 
-class BhukampaApp extends StatelessWidget {
-  const BhukampaApp({super.key});
+class SeismoGuardApp extends StatelessWidget {
+  const SeismoGuardApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
 
     return MaterialApp.router(
-      title: 'Bhukampa Tech',
+      title: 'Seismo Guard',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: themeProvider.themeMode,
       routerConfig: AppRouter.router,
       builder: (context, child) {
-        // Ensure system UI overlays follow theme
         final isDark = themeProvider.themeMode == ThemeMode.dark ||
             (themeProvider.themeMode == ThemeMode.system &&
                 MediaQuery.platformBrightnessOf(context) == Brightness.dark);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Central color tokens for the Bhukampa neumorphism design system.
+/// Central color tokens for the Seismo Guard neumorphism design system.
 /// Never use raw Color() values outside this file.
 abstract class AppColors {
   AppColors._();

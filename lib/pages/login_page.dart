@@ -18,7 +18,6 @@ class _SeismicWavePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final baseColor = isDark ? AppColors.darkBg : AppColors.lightBg;
     final waveColor = isDark
         ? AppColors.primary.withOpacity(0.06)
         : AppColors.primary.withOpacity(0.07);
@@ -28,7 +27,6 @@ class _SeismicWavePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
 
-    // Draw 6 seismic wave lines at different heights
     final waveLevels = [0.18, 0.32, 0.48, 0.62, 0.76, 0.88];
     for (var k = 0; k < waveLevels.length; k++) {
       final y = size.height * waveLevels[k];
@@ -40,7 +38,6 @@ class _SeismicWavePainter extends CustomPainter {
       path.moveTo(0, y);
 
       for (double x = 0; x <= size.width; x += 2) {
-        // Composite wave: slow base + brief seismic spike
         final baseWave = amplitude * sin(freq * x + phaseShift);
         final spike = (k == 2 || k == 4)
             ? 12.0 *
@@ -53,7 +50,6 @@ class _SeismicWavePainter extends CustomPainter {
       canvas.drawPath(path, paint);
     }
 
-    // Subtle crack lines — very low opacity
     final crackPaint = Paint()
       ..color = isDark
           ? AppColors.primary.withOpacity(0.04)
@@ -145,11 +141,8 @@ class _LoginPageState extends State<LoginPage>
   bool _obscurePass = true;
   bool _isLoading = false;
 
-  // Card breathing animation
   late final AnimationController _breathCtrl;
   late final Animation<double> _breathAnim;
-
-  // Entry animation
   late final AnimationController _entryCtrl;
   late final Animation<double> _entryFade;
   late final Animation<double> _entrySlide;
@@ -214,26 +207,24 @@ class _LoginPageState extends State<LoginPage>
       backgroundColor: bg,
       body: Stack(
         children: [
-          // ── Cinematic animated background
+          // Animated background
           _AnimatedSeismicBackground(isDark: isDark),
 
-          // ── Soft gradient overlay for depth
+          // Gradient overlay
           Container(
             decoration: BoxDecoration(
               gradient: RadialGradient(
                 center: const Alignment(0.0, -0.3),
                 radius: 1.2,
                 colors: [
-                  (isDark ? AppColors.darkBg : AppColors.lightBg)
-                      .withOpacity(0.0),
-                  (isDark ? AppColors.darkBg : AppColors.lightBg)
-                      .withOpacity(0.55),
+                  bg.withOpacity(0.0),
+                  bg.withOpacity(0.55),
                 ],
               ),
             ),
           ),
 
-          // ── Main login UI
+          // Main UI
           SafeArea(
             child: AnimatedBuilder(
               animation: _entryCtrl,
@@ -251,7 +242,7 @@ class _LoginPageState extends State<LoginPage>
                           children: [
                             const SizedBox(height: AppSpacing.xxl),
 
-                            // ── Logo
+                            // Logo
                             ScaleTransition(
                               scale: _breathAnim,
                               child: _buildLogo(isDark),
@@ -259,9 +250,8 @@ class _LoginPageState extends State<LoginPage>
 
                             const SizedBox(height: AppSpacing.lg),
 
-                            // App name
                             Text(
-                              'Bhukampa Tech',
+                              'Seismo Guard',
                               style: GoogleFonts.inter(
                                 color: textPrimary,
                                 fontSize: 28,
@@ -282,13 +272,10 @@ class _LoginPageState extends State<LoginPage>
 
                             const SizedBox(height: AppSpacing.xl),
 
-                            // ── Card with glow behind
-                            _buildLoginCard(
-                                isDark, textPrimary, textSecondary),
+                            _buildLoginCard(isDark, textPrimary, textSecondary),
 
                             const SizedBox(height: AppSpacing.lg),
 
-                            // Register link
                             GestureDetector(
                               onTap: () => context.go('/register'),
                               child: Row(
@@ -336,7 +323,6 @@ class _LoginPageState extends State<LoginPage>
         borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
         color: isDark ? AppColors.darkBg : AppColors.lightBg,
         boxShadow: [
-          // Glow behind logo
           BoxShadow(
             color: AppColors.primary.withOpacity(0.22),
             blurRadius: 28,
@@ -369,7 +355,6 @@ class _LoginPageState extends State<LoginPage>
     return Stack(
       alignment: Alignment.center,
       children: [
-        // Soft glow behind card
         Container(
           height: 320,
           decoration: BoxDecoration(
@@ -413,7 +398,7 @@ class _LoginPageState extends State<LoginPage>
               NeuTextField(
                 controller: _emailCtrl,
                 label: 'Email',
-                hint: 'operator@bhukampa.tech',
+                hint: 'operator@seismoguard.app',
                 prefixIcon: Icons.mail_outline_rounded,
                 keyboardType: TextInputType.emailAddress,
               ),
@@ -467,7 +452,6 @@ class _LoginPageState extends State<LoginPage>
 
               const SizedBox(height: AppSpacing.md),
 
-              // Demo skip
               NeuButton(
                 label: 'Lewati — Demo Mode',
                 icon: Icons.science_rounded,

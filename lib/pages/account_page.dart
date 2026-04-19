@@ -72,19 +72,15 @@ class AccountPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  // Profile card
                   _ProfileCard(isDark: isDark),
                   const SizedBox(height: AppSpacing.lg),
 
-                  // Device node info
                   _DeviceCard(isDark: isDark),
                   const SizedBox(height: AppSpacing.lg),
 
-                  // Session stats
                   _SessionStatsCard(isDark: isDark),
                   const SizedBox(height: AppSpacing.lg),
 
-                  // System info
                   _SystemCard(isDark: isDark),
                   const SizedBox(height: AppSpacing.xl),
                 ]),
@@ -153,7 +149,7 @@ class _ProfileCard extends StatelessWidget {
           const SizedBox(height: 4),
 
           Text(
-            'operator@bhukampa.tech',
+            'operator@seismoguard.app',
             style: GoogleFonts.inter(
               color: textSecondary,
               fontSize: 13,

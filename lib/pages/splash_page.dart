@@ -115,7 +115,7 @@ class _SplashPageState extends State<SplashPage>
                     child: Column(
                       children: [
                         Text(
-                          'Bhukampa Tech',
+                          'Seismo Guard',
                           style: GoogleFonts.inter(
                             color: textPrimary,
                             fontSize: 26,
@@ -139,7 +139,6 @@ class _SplashPageState extends State<SplashPage>
 
                   const SizedBox(height: AppSpacing.xxl),
 
-                  // Loading indicator
                   Transform.translate(
                     offset: Offset(0, _slideAnim.value),
                     child: SizedBox(

@@ -34,8 +34,6 @@ class _DashboardViewState extends State<_DashboardView>
     with TickerProviderStateMixin {
   late final AnimationController _dangerBannerCtrl;
   late final Animation<double> _dangerBannerAnim;
-
-  // Tracks previous trigger state to animate banner
   bool _prevTrigger = false;
 
   @override
@@ -89,7 +87,7 @@ class _DashboardViewState extends State<_DashboardView>
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // ── App Bar ───────────────────────────────────
+            // App Bar
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -108,7 +106,7 @@ class _DashboardViewState extends State<_DashboardView>
               ),
             ),
 
-            // ── Danger Banner ─────────────────────────────
+            // Danger Banner
             SliverToBoxAdapter(
               child: SizeTransition(
                 sizeFactor: _dangerBannerAnim,
@@ -127,20 +125,17 @@ class _DashboardViewState extends State<_DashboardView>
               ),
             ),
 
-            // ── Body ──────────────────────────────────────
+            // Body
             SliverPadding(
               padding: const EdgeInsets.all(AppSpacing.md),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  // Demo mode pill
                   _DemoModeBadge(isDark: isDark),
                   const SizedBox(height: AppSpacing.md),
 
-                  // Risk indicator
                   RiskIndicatorCard(result: risk),
                   const SizedBox(height: AppSpacing.md),
 
-                  // Metrics row
                   Row(
                     children: [
                       Expanded(
@@ -168,19 +163,15 @@ class _DashboardViewState extends State<_DashboardView>
                   ),
                   const SizedBox(height: AppSpacing.md),
 
-                  // Seismic chart
                   SeismicChartCard(history: provider.magnitudeHistory),
                   const SizedBox(height: AppSpacing.md),
 
-                  // Siren control
                   SirenControlCard(),
                   const SizedBox(height: AppSpacing.md),
 
-                  // Demo controls
                   _DemoControls(isDark: isDark),
                   const SizedBox(height: AppSpacing.md),
 
-                  // Last updated
                   Center(
                     child: Text(
                       'Diperbarui: ${provider.lastUpdatedLabel}',
@@ -235,7 +226,7 @@ class _DashboardViewState extends State<_DashboardView>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Bhukampa Tech',
+                'Seismo Guard',
                 style: GoogleFonts.inter(
                   color: textPrimary,
                   fontSize: 17,
@@ -255,7 +246,6 @@ class _DashboardViewState extends State<_DashboardView>
           ),
         ),
 
-        // Status badge
         StatusBadge(status: provider.connection),
       ],
     );
@@ -319,7 +309,7 @@ class _DemoModeBadge extends StatelessWidget {
           Expanded(
             child: Text(
               'DEMO MODE — Data disimulasikan dari Firebase RTDB',
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColors.warning,
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
@@ -378,9 +368,7 @@ class _DangerBannerState extends State<_DangerBanner>
         return Container(
           padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            color: widget.isDark
-                ? AppColors.dangerBgDark
-                : AppColors.dangerBg,
+            color: widget.isDark ? AppColors.dangerBgDark : AppColors.dangerBg,
             borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
             border: Border.all(
               color: AppColors.danger.withOpacity(0.4),

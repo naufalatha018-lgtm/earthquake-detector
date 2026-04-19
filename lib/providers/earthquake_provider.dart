@@ -15,11 +15,9 @@ class EarthquakeProvider extends ChangeNotifier {
   bool _isDemoMode = true;
   DateTime? _lastUpdated;
 
-  // Chart history — last 20 readings
   final List<double> _magnitudeHistory = [];
   static const int _historyLength = 20;
 
-  // Demo simulation
   Timer? _simulationTimer;
   Timer? _connectionTimer;
   final _rand = Random();
@@ -56,34 +54,37 @@ class EarthquakeProvider extends ChangeNotifier {
       await _audioPlayer.setReleaseMode(ReleaseMode.loop);
       await _audioPlayer.setVolume(1.0);
       _audioReady = true;
-      debugPrint('[Bhukampa Audio] AudioPlayer ready — asset: sounds/alarm.mp3');
+      debugPrint('[SeismoGuard Audio] AudioPlayer ready — asset: sounds/alarm.mp3');
     } catch (e) {
       _audioReady = false;
-      debugPrint('[Bhukampa Audio] WARNING Init failed: $e');
+      debugPrint('[SeismoGuard Audio] WARNING Init failed: $e');
     }
   }
 
   Future<void> _playSiren() async {
     if (!_audioReady) {
-      debugPrint('[Bhukampa Audio] WARNING Audio not ready, retrying init...');
+      debugPrint('[SeismoGuard Audio] WARNING Audio not ready, retrying init...');
       await _initAudio();
-      if (!_audioReady) return;
+      if (!_audioReady) {
+        debugPrint('[SeismoGuard Audio] FALLBACK Audio unavailable, siren suppressed');
+        return;
+      }
     }
     try {
       if (_audioPlayer.state == PlayerState.playing) return;
       await _audioPlayer.play(AssetSource('sounds/alarm.mp3'));
-      debugPrint('[Bhukampa Audio] PLAY siren started');
+      debugPrint('[SeismoGuard Audio] PLAY siren started');
     } catch (e) {
-      debugPrint('[Bhukampa Audio] ERROR Play failed: $e');
+      debugPrint('[SeismoGuard Audio] ERROR Play failed: $e');
     }
   }
 
   Future<void> _stopSiren() async {
     try {
       await _audioPlayer.stop();
-      debugPrint('[Bhukampa Audio] STOP siren stopped');
+      debugPrint('[SeismoGuard Audio] STOP siren stopped');
     } catch (e) {
-      debugPrint('[Bhukampa Audio] ERROR Stop failed: $e');
+      debugPrint('[SeismoGuard Audio] ERROR Stop failed: $e');
     }
   }
 
@@ -129,7 +130,6 @@ class EarthquakeProvider extends ChangeNotifier {
     if (_magnitudeHistory.length > _historyLength) {
       _magnitudeHistory.removeAt(0);
     }
-    // Sync siren to status_trigger
     if (reading.statusTrigger && !_sirenActive) {
       _sirenActive = true;
       _playSiren();

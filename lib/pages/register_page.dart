@@ -9,7 +9,6 @@ import '../widgets/neu_card.dart';
 import '../widgets/neu_button.dart';
 import '../widgets/neu_text_field.dart';
 
-// ── Floating Particle Painter (Option C — subtle particles) ─
 class _ParticlePainter extends CustomPainter {
   final List<_Particle> particles;
   final bool isDark;
@@ -20,10 +19,8 @@ class _ParticlePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (final p in particles) {
       final paint = Paint()
-        ..color = (isDark ? AppColors.primary : AppColors.primary)
-            .withOpacity(p.opacity)
+        ..color = AppColors.primary.withOpacity(p.opacity)
         ..style = PaintingStyle.fill;
-
       canvas.drawCircle(
         Offset(p.x * size.width, p.y * size.height),
         p.radius,
@@ -31,7 +28,6 @@ class _ParticlePainter extends CustomPainter {
       );
     }
 
-    // Seismic crack lines
     final crackPaint = Paint()
       ..color = isDark
           ? AppColors.safe.withOpacity(0.05)
@@ -61,7 +57,6 @@ class _ParticlePainter extends CustomPainter {
 
 class _Particle {
   double x, y, radius, opacity, vx, vy;
-
   _Particle({
     required this.x,
     required this.y,
@@ -91,19 +86,24 @@ class _AnimatedParticleBackgroundState
   @override
   void initState() {
     super.initState();
-    _particles = List.generate(28, (_) => _Particle(
-      x: _rng.nextDouble(),
-      y: _rng.nextDouble(),
-      radius: 0.8 + _rng.nextDouble() * 2.2,
-      opacity: 0.03 + _rng.nextDouble() * 0.08,
-      vx: (_rng.nextDouble() - 0.5) * 0.00015,
-      vy: -0.00008 - _rng.nextDouble() * 0.00012,
-    ));
+    _particles = List.generate(
+      28,
+      (_) => _Particle(
+        x: _rng.nextDouble(),
+        y: _rng.nextDouble(),
+        radius: 0.8 + _rng.nextDouble() * 2.2,
+        opacity: 0.03 + _rng.nextDouble() * 0.08,
+        vx: (_rng.nextDouble() - 0.5) * 0.00015,
+        vy: -0.00008 - _rng.nextDouble() * 0.00012,
+      ),
+    );
 
     _ctrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
-    )..addListener(_tick)..repeat();
+    )
+      ..addListener(_tick)
+      ..repeat();
   }
 
   void _tick() {
@@ -132,10 +132,7 @@ class _AnimatedParticleBackgroundState
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (_, __) => CustomPaint(
-        painter: _ParticlePainter(
-          particles: _particles,
-          isDark: widget.isDark,
-        ),
+        painter: _ParticlePainter(particles: _particles, isDark: widget.isDark),
         child: const SizedBox.expand(),
       ),
     );
@@ -161,11 +158,8 @@ class _RegisterPageState extends State<RegisterPage>
   bool _obscureConfirm = true;
   bool _isLoading = false;
 
-  // Breathing animation
   late final AnimationController _breathCtrl;
   late final Animation<double> _breathAnim;
-
-  // Entry animation
   late final AnimationController _entryCtrl;
   late final Animation<double> _entryFade;
   late final Animation<double> _entrySlide;
@@ -173,7 +167,6 @@ class _RegisterPageState extends State<RegisterPage>
   @override
   void initState() {
     super.initState();
-
     _breathCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 3200),
@@ -232,24 +225,21 @@ class _RegisterPageState extends State<RegisterPage>
       backgroundColor: bg,
       body: Stack(
         children: [
-          // ── Cinematic particle background
+          // Cinematic particle background
           _AnimatedParticleBackground(isDark: isDark),
 
-          // ── Gradient overlay
+          // Gradient overlay
           Container(
             decoration: BoxDecoration(
               gradient: RadialGradient(
                 center: const Alignment(0.0, 0.2),
                 radius: 1.3,
-                colors: [
-                  bg.withOpacity(0.0),
-                  bg.withOpacity(0.5),
-                ],
+                colors: [bg.withOpacity(0.0), bg.withOpacity(0.5)],
               ),
             ),
           ),
 
-          // ── Main UI
+          // Main UI
           SafeArea(
             child: AnimatedBuilder(
               animation: _entryCtrl,
@@ -275,8 +265,8 @@ class _RegisterPageState extends State<RegisterPage>
                                     GestureDetector(
                                       onTap: () => context.go('/login'),
                                       child: NeuCard(
-                                        padding: const EdgeInsets.all(
-                                            AppSpacing.sm),
+                                        padding:
+                                            const EdgeInsets.all(AppSpacing.sm),
                                         radius: AppSpacing.radiusMd,
                                         child: Icon(
                                           Icons.arrow_back_ios_new_rounded,
@@ -329,8 +319,8 @@ class _RegisterPageState extends State<RegisterPage>
                                           : AppColors.lightBg,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: AppColors.primary
-                                              .withOpacity(0.2),
+                                          color:
+                                              AppColors.primary.withOpacity(0.2),
                                           blurRadius: 20,
                                           spreadRadius: 2,
                                         ),
@@ -364,7 +354,6 @@ class _RegisterPageState extends State<RegisterPage>
 
                                 const SizedBox(height: AppSpacing.lg),
 
-                                // Register card
                                 _buildRegisterCard(
                                     isDark, textPrimary, textSecondary),
 
@@ -417,7 +406,7 @@ class _RegisterPageState extends State<RegisterPage>
     return Stack(
       alignment: Alignment.center,
       children: [
-        // Glow
+        // Glow behind card
         Container(
           height: 400,
           decoration: BoxDecoration(
@@ -451,7 +440,7 @@ class _RegisterPageState extends State<RegisterPage>
               NeuTextField(
                 controller: _emailCtrl,
                 label: 'Email',
-                hint: 'operator@bhukampa.tech',
+                hint: 'operator@seismoguard.app',
                 prefixIcon: Icons.mail_outline_rounded,
                 keyboardType: TextInputType.emailAddress,
               ),
