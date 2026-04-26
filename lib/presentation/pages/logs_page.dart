@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gempa_bumi/state/providers/gempa_provider.dart';
-import 'package:gempa_bumi/core/theme/app_style.dart';
+import 'package:seismo_guard/state/providers/gempa_provider.dart';
+import 'package:seismo_guard/core/theme/app_style.dart';
 
 class LogsPage extends StatelessWidget {
   const LogsPage({super.key});

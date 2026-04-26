@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/theme/app_style.dart';
 
 class AlertsPage extends StatefulWidget {
   const AlertsPage({super.key});
@@ -29,10 +30,13 @@ class _AlertsPageState extends State<AlertsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Alert Parameters"),
-        leading: const BackButton(),
+        title: const Text("Alert Parameters", style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+        leading: const BackButton(color: Colors.black87),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
       ),
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: AppStyle.bg(context),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: ListView(

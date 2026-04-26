@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:gempa_bumi/core/services/firebase_service.dart';
+import 'package:seismo_guard/core/services/firebase_service.dart';
 
 class GempaProvider extends ChangeNotifier {
   bool isDemo = true;
@@ -14,6 +14,7 @@ class GempaProvider extends ChangeNotifier {
   };
 
   List<double> magnitudes = [1, 2, 3, 2, 4, 3, 5];
+  List<Map<String, String>> logs = [];
 
   StreamSubscription? _firebaseSubscription;
   final FirebaseService _firebaseService = FirebaseService();
@@ -82,6 +83,13 @@ class GempaProvider extends ChangeNotifier {
       magnitudes.add(magnitude);
       if (magnitudes.length > 10) {
         magnitudes.removeAt(0);
+      }
+
+      // Add to logs if it's a new "event" or just to show something in the logs for now
+      // For this demo, let's just add it if magnitude changed significantly or just add it
+      logs.insert(0, {...gempa});
+      if (logs.length > 50) {
+        logs.removeLast();
       }
     }
 

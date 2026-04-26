@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // pages
-import '../../features/dashboard/dashboard_page.dart';
-import '../../features/dashboard/logs_page.dart';
+import '../../presentation/pages/dashboard_page.dart';
+import '../../presentation/pages/logs_page.dart';
+import '../../presentation/pages/main_page.dart';
+import '../../presentation/pages/register_page.dart';
 import '../../features/settings/settings_page.dart';
 
 // settings pages
@@ -14,18 +16,29 @@ import '../../features/settings/emergency_page.dart';
 import '../../features/settings/system_page.dart';
 
 // auth
-import '../../features/auth/login_page.dart';
+import '../../presentation/pages/login_page.dart';
 
 final GoRouter appRouter = GoRouter(
+  initialLocation: '/',
   routes: [
     GoRoute(
       path: '/',
-      builder: (_, __) => const DashboardPage(),
+      builder: (_, __) => const LoginPage(),
     ),
 
     GoRoute(
-      path: '/login',
-      builder: (_, __) => const LoginPage(),
+      path: '/register',
+      builder: (_, __) => const RegisterPage(),
+    ),
+
+    GoRoute(
+      path: '/main',
+      builder: (_, __) => const MainPage(),
+    ),
+
+    GoRoute(
+      path: '/dashboard',
+      builder: (_, __) => const DashboardPage(),
     ),
 
     GoRoute(

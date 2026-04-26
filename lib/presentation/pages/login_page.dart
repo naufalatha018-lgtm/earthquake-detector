@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gempa_bumi/core/theme/app_style.dart';
+import 'package:seismo_guard/core/theme/app_style.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -42,11 +42,18 @@ class LoginPage extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    context.go('/dashboard');
+                    context.go('/main');
                   },
                   child: const Text('Login'),
                 ),
-              )
+              ),
+
+              const SizedBox(height: 10),
+
+              TextButton(
+                onPressed: () => context.go('/register'),
+                child: const Text("Don't have an account? Register"),
+              ),
 
             ],
           ),

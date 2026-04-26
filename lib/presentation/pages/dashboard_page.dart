@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gempa_bumi/state/providers/gempa_provider.dart';
-import 'package:gempa_bumi/core/theme/app_style.dart';
+import 'package:seismo_guard/state/providers/gempa_provider.dart';
+import 'package:seismo_guard/core/theme/app_style.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -73,7 +73,11 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         centerTitle: true,
         actions: [
-          Padding(
+          IconButton(
+            onPressed: () => context.go('/'),
+            icon: const Icon(Icons.logout_rounded, color: Colors.black54),
+          ),
+          const Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Icon(Icons.notifications_none_rounded, color: Colors.black54),
           ),
@@ -203,7 +207,7 @@ class _DashboardPageState extends State<DashboardPage> {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () {
-                  context.go('/dashboard/logs');
+                  context.go('/logs');
                 },
                 icon: const Icon(Icons.list_alt_rounded, size: 18),
                 label: const Text('Logs'),

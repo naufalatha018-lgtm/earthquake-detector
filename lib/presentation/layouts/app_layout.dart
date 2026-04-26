@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gempa_bumi/core/theme/app_style.dart';
+import 'package:seismo_guard/core/theme/app_style.dart';
 
 class AppLayout extends StatelessWidget {
   final String title;
