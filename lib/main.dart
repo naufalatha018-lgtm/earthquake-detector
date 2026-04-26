@@ -1,21 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'state/providers/gempa_provider.dart';
 import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+  ));
+
+  runApp(const SeismoGuardApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SeismoGuardApp extends StatelessWidget {
+  const SeismoGuardApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +37,9 @@ class MyApp extends StatelessWidget {
         return p;
       },
       child: MaterialApp.router(
+        title: 'SeismoGuard',
         debugShowCheckedModeBanner: false,
+        theme: AppTheme.dark,
         routerConfig: appRouter,
       ),
     );
