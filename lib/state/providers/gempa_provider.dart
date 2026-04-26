@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:gempa_bumi/core/services/firebase_service.dart';
 
 class GempaProvider extends ChangeNotifier {
   bool isDemo = true;
@@ -14,71 +15,74 @@ class GempaProvider extends ChangeNotifier {
 
   List<double> magnitudes = [1, 2, 3, 2, 4, 3, 5];
 
-  Timer? _timer;
+  StreamSubscription? _firebaseSubscription;
+  final FirebaseService _firebaseService = FirebaseService();
   final AudioPlayer _player = AudioPlayer();
   bool _isPlaying = false;
 
-  // 🚀 START SIMULATION
+  // 🚀 START SIMULATION (Now from Firebase)
   void startSimulation() {
-  stopSimulation();
+    stopSimulation();
 
-  if (isDemo) {
-    _timer = Timer.periodic(const Duration(seconds: 3), (_) {
-      _updateGempa();
-    });
+    if (isDemo) {
+      _firebaseSubscription = _firebaseService.getCombinedDataStream().listen((data) {
+        _updateFromFirebase(data);
+      });
     } else {
-    // nanti untuk API (sementara kosong)
+      // nanti untuk API (sementara kosong)
     }
   }
 
-  // 🛑 STOP SIMULATION (biar aman)
+  // 🛑 STOP SIMULATION
   void stopSimulation() {
-    _timer?.cancel();
-    _timer = null;
+    _firebaseSubscription?.cancel();
+    _firebaseSubscription = null;
   }
 
   Future<void> _playAlarm() async {
-  if (_isPlaying) return;
+    if (_isPlaying) return;
 
-  _isPlaying = true;
-  await _player.play(AssetSource('sounds/alarm.mp3'));
+    _isPlaying = true;
+    await _player.play(AssetSource('sounds/alarm.mp3'));
 
-  Future.delayed(const Duration(seconds: 3), () {
-    _isPlaying = false;
-  });
-}
+    Future.delayed(const Duration(seconds: 3), () {
+      _isPlaying = false;
+    });
+  }
 
-  // 🔄 UPDATE DATA (DEMO MODE)
-  void _updateGempa() {
-    final now = DateTime.now();
+  // 🔄 UPDATE DATA (FROM FIREBASE)
+  void _updateFromFirebase(Map<String, dynamic> data) {
+    final environment = data['demo_environment'] as Map<dynamic, dynamic>?;
+    final deviceStatus = data['demo_device_status'] as Map<dynamic, dynamic>?;
+    final telemetry = data['demo_telemetry'] as Map<dynamic, dynamic>?;
 
-    final dummyWilayah = [
-      "Kab. Bandung, Jawa Barat",
-      "Jakarta Selatan",
-      "Yogyakarta",
-      "Surabaya",
-      "Padang, Sumatera Barat"
-    ];
+    if (environment == null) return;
 
-    final wilayah = dummyWilayah[now.second % dummyWilayah.length];
+    final double magnitude = (environment['api_magnitude'] ?? 0).toDouble();
+    final bool apiTriggerActive = environment['api_trigger_active'] ?? false;
+    final bool sensorVibration = telemetry?['sensor_vibration_active'] ?? false;
 
-    final magnitude = (3 + (now.second % 5)).toDouble();
-
-    if (magnitude >= 5) {
+    if (apiTriggerActive || sensorVibration || magnitude >= 5.0) {
       _playAlarm();
     }
 
+    final now = DateTime.now();
+    
+    // For demo purposes, we still generate some fields that might not be in RTDB yet
+    // but we use magnitude from Firebase.
     gempa = {
       "tanggal": "${now.day}/${now.month}/${now.year}",
       "jam": "${now.hour}:${now.minute}:${now.second}",
       "magnitude": magnitude.toStringAsFixed(1),
-      "kedalaman": "${10 + now.second} km",
-      "wilayah": wilayah,
+      "kedalaman": "10 km", // Mocked for now as it's not in the provided JSON
+      "wilayah": "Demo Location", // Mocked
     };
 
-    magnitudes.add(magnitude);
-    if (magnitudes.length > 10) {
-      magnitudes.removeAt(0);
+    if (magnitude > 0) {
+      magnitudes.add(magnitude);
+      if (magnitudes.length > 10) {
+        magnitudes.removeAt(0);
+      }
     }
 
     notifyListeners();

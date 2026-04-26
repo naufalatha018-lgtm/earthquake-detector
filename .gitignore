@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+database/seismoguardeqalert-default-rtdb-export.json
+android/app/google-services.json
