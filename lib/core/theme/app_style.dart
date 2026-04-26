@@ -1,60 +1,46 @@
 import 'package:flutter/material.dart';
 
 class AppStyle {
-
-  // ✅ BACKGROUND COLOR (dipakai settings)
   static Color bg(BuildContext context) {
-    return const Color(0xFFF5F7FA);
+    return Theme.of(context).scaffoldBackgroundColor;
   }
 
-  // ✅ BACKGROUND DECORATION (dipakai login & layout)
-  static BoxDecoration background() {
-    return const BoxDecoration(
-      color: Color(0xFFF5F7FA),
-    );
+  static Color surface(BuildContext context) {
+    return Theme.of(context).colorScheme.surface;
   }
 
-  // ✅ CARD
-  static BoxDecoration card() {
+  static Color primary(BuildContext context) {
+    return Theme.of(context).colorScheme.primary;
+  }
+
+  static Color text(BuildContext context) {
+    return Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+  }
+
+  static BoxDecoration card(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
+      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+      borderRadius: BorderRadius.circular(20),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.04),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
+          color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+          blurRadius: 16,
+          offset: const Offset(0, 8),
         ),
       ],
     );
   }
 
-  // ✅ TEXT STYLE
-  static const TextStyle title = TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.w600,
-    color: Colors.black,
-  );
-
-  static const TextStyle subtle = TextStyle(
-    fontSize: 13,
-    color: Colors.grey,
-  );
-
-  static const TextStyle value = TextStyle(
-    fontSize: 16,
-    fontWeight: FontWeight.w600,
-    color: Colors.black,
-  );
-
-  // ✅ BUTTON (dipakai login)
-  static ButtonStyle primaryButton = ElevatedButton.styleFrom(
-    backgroundColor: Colors.black,
-    foregroundColor: Colors.white,
-    elevation: 0,
-    padding: const EdgeInsets.symmetric(vertical: 14),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-    ),
-  );
+  static ButtonStyle primaryButton(BuildContext context) {
+    return ElevatedButton.styleFrom(
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
+  }
 }

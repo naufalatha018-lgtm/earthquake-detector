@@ -15,20 +15,17 @@ class AppLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
+      backgroundColor: AppStyle.bg(context),
       appBar: AppBar(
         leading: showBack ? const BackButton() : null,
         title: Text(title),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: Colors.black,
       ),
-      body: Container(
-        decoration: AppStyle.background(),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: child,
-        ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: child,
       ),
     );
   }

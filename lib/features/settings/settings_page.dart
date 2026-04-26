@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import '../../state/providers/settings_provider.dart';
 import '../../core/theme/app_style.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -7,29 +9,22 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+    final theme = Theme.of(context);
+
     final items = [
-      {'title': 'Account & Access', 'icon': Icons.person_outline_rounded, 'route': '/settings/account'},
-      {'title': 'Hardware & Diagnostics', 'icon': Icons.memory_rounded, 'route': '/settings/hardware'},
-      {'title': 'Alert Parameters', 'icon': Icons.warning_amber_rounded, 'route': '/settings/alerts'},
-      {'title': 'Emergency Protocol', 'icon': Icons.phone_in_talk_rounded, 'route': '/settings/emergency'},
-      {'title': 'System Preferences', 'icon': Icons.tune_rounded, 'route': '/settings/system'},
+      {'title': settings.getString('account_access'), 'icon': Icons.person_outline_rounded, 'route': '/settings/account'},
+      {'title': settings.getString('hardware_diag'), 'icon': Icons.memory_rounded, 'route': '/settings/hardware'},
+      {'title': settings.getString('alert_params'), 'icon': Icons.warning_amber_rounded, 'route': '/settings/alerts'},
+      {'title': settings.getString('emergency_proto'), 'icon': Icons.phone_in_talk_rounded, 'route': '/settings/emergency'},
+      {'title': settings.getString('system_prefs'), 'icon': Icons.tune_rounded, 'route': '/settings/system'},
     ];
 
     return Scaffold(
       backgroundColor: AppStyle.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          'Settings',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            color: Colors.black87,
-          ),
-        ),
-        centerTitle: true,
-        leading: const BackButton(color: Colors.black87),
+        title: Text(settings.getString('settings')),
+        automaticallyImplyLeading: false, // Remove back button
       ),
       body: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -42,30 +37,20 @@ class SettingsPage extends StatelessWidget {
             onTap: () => context.push(item['route'] as String),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
+              decoration: AppStyle.card(context),
               child: Row(
                 children: [
                   Container(
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF0F0F5),
+                      color: theme.colorScheme.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       item['icon'] as IconData,
                       size: 20,
-                      color: const Color(0xFF1C1C2E),
+                      color: theme.colorScheme.primary,
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -74,15 +59,14 @@ class SettingsPage extends StatelessWidget {
                       item['title'] as String,
                       style: const TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 14,
-                    color: Colors.black38,
+                    color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
                   ),
                 ],
               ),
