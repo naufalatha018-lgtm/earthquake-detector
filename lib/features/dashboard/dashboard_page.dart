@@ -167,13 +167,30 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SizedBox(height: 16),
 
                 // 🔥 SIREN BUTTON
-                ElevatedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Siren Triggered 🔊")),
+                Consumer<GempaProvider>(
+                  builder: (context, gempa, child) {
+                    final isActive = gempa.isSirenActive;
+                    return ElevatedButton.icon(
+                      onPressed: () {
+                        gempa.setManualSiren(!isActive);
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(isActive ? "Siren Deactivated 🔇" : "Siren Triggered 🔊"),
+                            duration: const Duration(seconds: 1),
+                          ),
+                        );
+                      },
+                      icon: Icon(isActive ? Icons.volume_off_rounded : Icons.volume_up_rounded),
+                      label: Text(isActive ? "Stop Siren" : "Trigger Siren"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isActive ? Colors.red : Colors.black,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 45),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
                     );
                   },
-                  child: const Text("Trigger Siren"),
                 ),
 
                 const SizedBox(height: 20),

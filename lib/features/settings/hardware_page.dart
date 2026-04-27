@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_style.dart';
 import '../../state/providers/settings_provider.dart';
+import '../../state/providers/gempa_provider.dart';
 
 class HardwarePage extends StatefulWidget {
   const HardwarePage({super.key});
@@ -80,15 +81,30 @@ class _HardwarePageState extends State<HardwarePage> {
             const SizedBox(height: 32),
 
             // 🔥 ACTION BUTTONS
-            ElevatedButton.icon(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Siren Activated 🔊")),
+            Consumer<GempaProvider>(
+              builder: (context, gempa, child) {
+                final isActive = gempa.isSirenActive;
+                return ElevatedButton.icon(
+                  onPressed: () {
+                    gempa.setManualSiren(!isActive);
+                    ScaffoldMessenger.of(context).clearSnackBars();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(isActive ? "Siren Deactivated 🔇" : "Siren Activated 🔊"),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  },
+                  icon: Icon(isActive ? Icons.volume_off_rounded : Icons.volume_up_rounded),
+                  label: Text(isActive ? "Stop Siren" : "Simulate Siren"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isActive ? Colors.red : theme.colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                 );
               },
-              icon: const Icon(Icons.volume_up_rounded),
-              label: const Text("Simulate Siren"),
-              style: AppStyle.primaryButton(context),
             ),
 
             const SizedBox(height: 12),

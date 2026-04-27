@@ -82,13 +82,26 @@ class _DashboardPageState extends State<DashboardPage> {
           children: [
 
             // ── Header subtitle ──────────────────────────────
-            Text(
-              settings.getString('live_seismic'),
-              style: TextStyle(
-                fontSize: 13,
-                color: theme.colorScheme.onSurfaceVariant,
-                letterSpacing: 0.5,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  settings.getString('live_seismic'),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: theme.colorScheme.onSurfaceVariant,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Text(
+                  provider.currentTimeStr,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 4),
             Text(

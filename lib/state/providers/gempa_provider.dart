@@ -19,11 +19,24 @@ class GempaProvider extends ChangeNotifier {
   StreamSubscription? _firebaseSubscription;
   final FirebaseService _firebaseService = FirebaseService();
   final AudioPlayer _player = AudioPlayer();
-  bool _isPlaying = false;
+  bool _isAutoSirenActive = false;
+  bool _isManualSirenActive = false;
+  Timer? _clockTimer;
+  DateTime _currentTime = DateTime.now();
+
+  String get currentTimeStr => 
+      "${_currentTime.hour.toString().padLeft(2, '0')}:${_currentTime.minute.toString().padLeft(2, '0')}:${_currentTime.second.toString().padLeft(2, '0')}";
+
+  bool get isSirenActive => _isAutoSirenActive || _isManualSirenActive;
 
   // 🚀 START SIMULATION (Now from Firebase)
   void startSimulation() {
     stopSimulation();
+
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _currentTime = DateTime.now();
+      notifyListeners();
+    });
 
     if (isDemo) {
       _firebaseSubscription = _firebaseService.getCombinedDataStream().listen((data) {
@@ -38,23 +51,33 @@ class GempaProvider extends ChangeNotifier {
   void stopSimulation() {
     _firebaseSubscription?.cancel();
     _firebaseSubscription = null;
+    _clockTimer?.cancel();
+    _clockTimer = null;
+    setManualSiren(false);
   }
 
-  Future<void> _playAlarm() async {
-    if (_isPlaying) return;
+  void setManualSiren(bool active) {
+    _isManualSirenActive = active;
+    _updateSirenPlayer();
+    notifyListeners();
+  }
 
-    _isPlaying = true;
-    await _player.play(AssetSource('sounds/alarm.mp3'));
-
-    Future.delayed(const Duration(seconds: 3), () {
-      _isPlaying = false;
-    });
+  Future<void> _updateSirenPlayer() async {
+    if (isSirenActive) {
+      if (_player.state != PlayerState.playing) {
+        await _player.setReleaseMode(ReleaseMode.loop);
+        await _player.play(AssetSource('sounds/alarm.mp3'));
+      }
+    } else {
+      if (_player.state == PlayerState.playing) {
+        await _player.stop();
+      }
+    }
   }
 
   // 🔄 UPDATE DATA (FROM FIREBASE)
   void _updateFromFirebase(Map<String, dynamic> data) {
     final environment = data['demo_environment'] as Map<dynamic, dynamic>?;
-    final deviceStatus = data['demo_device_status'] as Map<dynamic, dynamic>?;
     final telemetry = data['demo_telemetry'] as Map<dynamic, dynamic>?;
 
     if (environment == null) return;
@@ -63,9 +86,9 @@ class GempaProvider extends ChangeNotifier {
     final bool apiTriggerActive = environment['api_trigger_active'] ?? false;
     final bool sensorVibration = telemetry?['sensor_vibration_active'] ?? false;
 
-    if (apiTriggerActive || sensorVibration || magnitude >= 5.0) {
-      _playAlarm();
-    }
+    // 🔥 Update Auto Siren State
+    _isAutoSirenActive = apiTriggerActive || sensorVibration || magnitude >= 5.0;
+    _updateSirenPlayer();
 
     final now = DateTime.now();
     
