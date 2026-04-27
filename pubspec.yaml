@@ -1,5 +1,5 @@
-name: gempa_bumi
-description: "SeismoGuard - Earthquake Detection IoT App"
+name: seismo_guard
+description: "Seismo Guard - Earthquake Monitor App."
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -18,14 +18,44 @@ dependencies:
   shared_preferences: ^2.5.5
   google_fonts: ^8.0.2
   audioplayers: ^6.6.0
+  firebase_core: ^4.7.0
+  firebase_database: ^12.3.0
+  firebase_messaging: ^15.3.0
+  flutter_local_notifications: ^18.0.0
+  permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+
+  macos:
+    generate: true
+    image_path: "assets/images/logo.png"
+
+  windows:
+    generate: true
+    image_path: "assets/images/logo.png"
+
+  linux:
+    generate: true
+    image_path: "assets/images/logo.png"
+
+  image_path: "assets/images/logo.png"
+
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/logo.png"
+
+  web:
+    generate: false
 
 flutter:
-  uses-material-design: true
   assets:
     - assets/sounds/alarm.mp3
     - assets/images/logo.png
+  uses-material-design: true

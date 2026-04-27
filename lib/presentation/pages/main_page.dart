@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../state/providers/settings_provider.dart';
 import 'dashboard_page.dart';
 import 'logs_page.dart';
+import '../../features/settings/settings_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -15,12 +18,18 @@ class _MainPageState extends State<MainPage> {
   final pages = const [
     DashboardPage(),
     LogsPage(),
+    SettingsPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+
     return Scaffold(
-      body: pages[currentIndex],
+      body: IndexedStack(
+        index: currentIndex,
+        children: pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) {
@@ -28,14 +37,18 @@ class _MainPageState extends State<MainPage> {
             currentIndex = index;
           });
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+            icon: const Icon(Icons.dashboard_rounded),
+            label: settings.getString('dashboard'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Logs',
+            icon: const Icon(Icons.list_alt_rounded),
+            label: settings.getString('logs'),
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.settings_rounded),
+            label: settings.getString('settings'),
           ),
         ],
       ),

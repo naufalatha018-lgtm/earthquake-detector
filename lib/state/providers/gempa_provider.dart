@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:seismo_guard/core/services/firebase_service.dart';
 
 class GempaProvider extends ChangeNotifier {
   bool isDemo = true;
@@ -13,72 +14,106 @@ class GempaProvider extends ChangeNotifier {
   };
 
   List<double> magnitudes = [1, 2, 3, 2, 4, 3, 5];
+  List<Map<String, String>> logs = [];
 
-  Timer? _timer;
+  StreamSubscription? _firebaseSubscription;
+  final FirebaseService _firebaseService = FirebaseService();
   final AudioPlayer _player = AudioPlayer();
-  bool _isPlaying = false;
+  bool _isAutoSirenActive = false;
+  bool _isManualSirenActive = false;
+  Timer? _clockTimer;
+  DateTime _currentTime = DateTime.now();
 
-  // 🚀 START SIMULATION
+  String get currentTimeStr => 
+      "${_currentTime.hour.toString().padLeft(2, '0')}:${_currentTime.minute.toString().padLeft(2, '0')}:${_currentTime.second.toString().padLeft(2, '0')}";
+
+  bool get isSirenActive => _isAutoSirenActive || _isManualSirenActive;
+
+  // 🚀 START SIMULATION (Now from Firebase)
   void startSimulation() {
-  stopSimulation();
+    stopSimulation();
 
-  if (isDemo) {
-    _timer = Timer.periodic(const Duration(seconds: 3), (_) {
-      _updateGempa();
+    _clockTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _currentTime = DateTime.now();
+      notifyListeners();
     });
+
+    if (isDemo) {
+      _firebaseSubscription = _firebaseService.getCombinedDataStream().listen((data) {
+        _updateFromFirebase(data);
+      });
     } else {
-    // nanti untuk API (sementara kosong)
+      // nanti untuk API (sementara kosong)
     }
   }
 
-  // 🛑 STOP SIMULATION (biar aman)
+  // 🛑 STOP SIMULATION
   void stopSimulation() {
-    _timer?.cancel();
-    _timer = null;
+    _firebaseSubscription?.cancel();
+    _firebaseSubscription = null;
+    _clockTimer?.cancel();
+    _clockTimer = null;
+    setManualSiren(false);
   }
 
-  Future<void> _playAlarm() async {
-  if (_isPlaying) return;
+  void setManualSiren(bool active) {
+    _isManualSirenActive = active;
+    _updateSirenPlayer();
+    notifyListeners();
+  }
 
-  _isPlaying = true;
-  await _player.play(AssetSource('sounds/alarm.mp3'));
-
-  Future.delayed(const Duration(seconds: 3), () {
-    _isPlaying = false;
-  });
-}
-
-  // 🔄 UPDATE DATA (DEMO MODE)
-  void _updateGempa() {
-    final now = DateTime.now();
-
-    final dummyWilayah = [
-      "Kab. Bandung, Jawa Barat",
-      "Jakarta Selatan",
-      "Yogyakarta",
-      "Surabaya",
-      "Padang, Sumatera Barat"
-    ];
-
-    final wilayah = dummyWilayah[now.second % dummyWilayah.length];
-
-    final magnitude = (3 + (now.second % 5)).toDouble();
-
-    if (magnitude >= 5) {
-      _playAlarm();
+  Future<void> _updateSirenPlayer() async {
+    if (isSirenActive) {
+      if (_player.state != PlayerState.playing) {
+        await _player.setReleaseMode(ReleaseMode.loop);
+        await _player.play(AssetSource('sounds/alarm.mp3'));
+      }
+    } else {
+      if (_player.state == PlayerState.playing) {
+        await _player.stop();
+      }
     }
+  }
 
+  // 🔄 UPDATE DATA (FROM FIREBASE)
+  void _updateFromFirebase(Map<String, dynamic> data) {
+    final environment = data['demo_environment'] as Map<dynamic, dynamic>?;
+    final telemetry = data['demo_telemetry'] as Map<dynamic, dynamic>?;
+
+    if (environment == null) return;
+
+    final double magnitude = (environment['api_magnitude'] ?? 0).toDouble();
+    final bool apiTriggerActive = environment['api_trigger_active'] ?? false;
+    final bool sensorVibration = telemetry?['sensor_vibration_active'] ?? false;
+
+    // 🔥 Update Auto Siren State
+    _isAutoSirenActive = apiTriggerActive || sensorVibration || magnitude >= 5.0;
+    _updateSirenPlayer();
+
+    final now = DateTime.now();
+    
+    // For demo purposes, we still generate some fields that might not be in RTDB yet
+    // but we use magnitude from Firebase.
     gempa = {
       "tanggal": "${now.day}/${now.month}/${now.year}",
       "jam": "${now.hour}:${now.minute}:${now.second}",
       "magnitude": magnitude.toStringAsFixed(1),
-      "kedalaman": "${10 + now.second} km",
-      "wilayah": wilayah,
+      "kedalaman": "10 km", // Mocked for now as it's not in the provided JSON
+      "wilayah": "Demo Location", // Mocked
     };
 
-    magnitudes.add(magnitude);
-    if (magnitudes.length > 10) {
-      magnitudes.removeAt(0);
+    if (magnitude > 0) {
+      magnitudes.add(magnitude);
+      if (magnitudes.length > 10) {
+        magnitudes.removeAt(0);
+      }
+
+      // Add to logs if it's a new "event" or just to show something in the logs for now
+      // For this demo, let's just add it if magnitude changed significantly or just add it
+      logs.insert(0, {...gempa});
+      if (logs.length > 50) {
+        logs.removeLast();
+      }
     }
 
     notifyListeners();

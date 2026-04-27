@@ -1,40 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:gempa_bumi/state/providers/gempa_provider.dart';
-import 'package:gempa_bumi/core/theme/app_style.dart';
+import 'package:seismo_guard/state/providers/gempa_provider.dart';
+import 'package:seismo_guard/state/providers/settings_provider.dart';
+import 'package:seismo_guard/core/theme/app_style.dart';
 
 class LogsPage extends StatelessWidget {
   const LogsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final logs = context.watch<GempaProvider>().logs;
+    final provider = context.watch<GempaProvider>();
+    final settings = context.watch<SettingsProvider>();
+    final logs = provider.logs;
+    final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: AppStyle.bg(context),
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          'Logs',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
-            color: Colors.black87,
-          ),
-        ),
-        centerTitle: true,
+        title: Text(settings.getString('logs')),
       ),
       body: logs.isEmpty
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.inbox_rounded, size: 48, color: Colors.black26),
-                  SizedBox(height: 12),
-                  Text(
-                    'Belum ada data log',
-                    style: TextStyle(color: Colors.black45, fontSize: 14),
+                  Icon(Icons.inbox_rounded, size: 48, color: theme.colorScheme.onSurfaceVariant.withOpacity(0.3)),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'No data available',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                 ],
               ),
@@ -50,17 +44,7 @@ class LogsPage extends StatelessWidget {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
+                  decoration: AppStyle.card(context),
                   child: Row(
                     children: [
                       Container(
@@ -68,8 +52,8 @@ class LogsPage extends StatelessWidget {
                         height: 48,
                         decoration: BoxDecoration(
                           color: isHigh
-                              ? const Color(0xFF1C1C2E)
-                              : const Color(0xFFF0F0F5),
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.primary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -78,7 +62,7 @@ class LogsPage extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 15,
-                              color: isHigh ? Colors.white : Colors.black87,
+                              color: isHigh ? theme.colorScheme.onPrimary : theme.colorScheme.primary,
                             ),
                           ),
                         ),
@@ -93,37 +77,35 @@ class LogsPage extends StatelessWidget {
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
-                                color: Colors.black87,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               '${item['tanggal']} • ${item['jam']}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.black45,
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: isHigh
-                              ? const Color(0xFFFFECEC)
-                              : const Color(0xFFECF5EC),
+                              ? theme.colorScheme.errorContainer
+                              : theme.colorScheme.primary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          isHigh ? 'Tinggi' : 'Normal',
+                          isHigh ? 'High' : 'Normal',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: isHigh
-                                ? const Color(0xFFCC3333)
-                                : const Color(0xFF2E7D32),
+                                ? theme.colorScheme.error
+                                : theme.colorScheme.primary,
                           ),
                         ),
                       ),
